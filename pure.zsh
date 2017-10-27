@@ -338,7 +338,8 @@ prompt_pure_check_git_arrows() {
 
 prompt_pure_async_callback() {
 	setopt localoptions noshwordsplit
-	local job=$1 code=$2 output=$3 exec_time=$4
+	local job=$1 code=$2 output=$3 exec_time=$4 last_result=$6
+	local do_render=0
 
 	case $job in
 		prompt_pure_async_vcs_info)
@@ -369,7 +370,7 @@ prompt_pure_async_callback() {
 			prompt_pure_vcs_info[branch]=$info[branch]
 			prompt_pure_vcs_info[top]=$info[top]
 
-			prompt_pure_preprompt_render
+			do_render=1
 			;;
 		prompt_pure_async_git_aliases)
 			if [[ -n $output ]]; then
@@ -385,7 +386,7 @@ prompt_pure_async_callback() {
 				typeset -g prompt_pure_git_dirty="*"
 			fi
 
-			[[ $prev_dirty != $prompt_pure_git_dirty ]] && prompt_pure_preprompt_render
+			[[ $prev_dirty != $prompt_pure_git_dirty ]] && do_render=1
 
 			# When prompt_pure_git_last_dirty_check_timestamp is set, the git info is displayed in a different color.
 			# To distinguish between a "fresh" and a "cached" result, the preprompt is rendered before setting this
@@ -400,7 +401,7 @@ prompt_pure_async_callback() {
 				prompt_pure_check_git_arrows ${(ps:\t:)output}
 				if [[ $prompt_pure_git_arrows != $REPLY ]]; then
 					prompt_pure_git_arrows=$REPLY
-					prompt_pure_preprompt_render
+					do_render=1
 				fi
 			elif (( code != 99 )); then
 				# Unless the exit code is 99, prompt_pure_async_git_arrows
@@ -408,11 +409,13 @@ prompt_pure_async_callback() {
 				# upstream configured.
 				if [[ -n $prompt_pure_git_arrows ]]; then
 					unset prompt_pure_git_arrows
-					prompt_pure_preprompt_render
+					do_render=1
 				fi
 			fi
 			;;
 	esac
+
+	(( do_render )) && (( last_result )) && prompt_pure_preprompt_render
 }
 
 prompt_pure_setup() {
