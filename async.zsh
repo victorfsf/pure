@@ -202,7 +202,7 @@ _async_worker() {
 # 	$3 = resulting stdout from execution
 # 	$4 = execution time, floating point e.g. 2.05 seconds
 # 	$5 = resulting stderr from execution
-#	$6 = is last result in buffer (0 = expect more, 1 = last result)
+#	$6 = has next result in buffer (0 = buffer empty, 1 = yes)
 #
 async_process_results() {
 	setopt localoptions unset noshwordsplit noksharrays noposixidentifiers noposixstrings
@@ -241,7 +241,7 @@ async_process_results() {
 			fi
 
 			if (( $#items == 5 )); then
-				items+=($(( len == 0 )))
+				items+=($(( len != 0 )))
 				$callback "${(@)items}"  # Send all parsed items to the callback.
 			else
 				# In case of corrupt data, invoke callback with *async* as job
