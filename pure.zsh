@@ -31,7 +31,7 @@
 not_so_pure() {
     declare preprompt_parts="$@"
     if [[ -n "$VIRTUAL_ENV" ]]; then
-        preprompt_parts+=('%F{yellow}v${$(python --version 2>&1 | sed -e "s/Python //")}%f')
+        preprompt_parts+=('%F{yellow}v$(python --version 2>&1 | sed -e "s/Python //")%f')
     fi
 
     if [[ -n "$DOCKER_MACHINE_NAME" ]]; then
@@ -122,7 +122,8 @@ prompt_pure_preprompt_render() {
 	# Initialize the preprompt array.
 	local -a preprompt_parts
 	# Set the path.
-	preprompt_parts+=('%F{blue}%~%f')
+	# preprompt_parts+=('%F{blue}%~%f')
+	preprompt_parts+=('%F{blue}» $(basename $PWD)%f')
 
 	# Add git branch and dirty status info.
 	typeset -gA prompt_pure_vcs_info
