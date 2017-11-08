@@ -28,19 +28,6 @@
 # 165392 => 1d 21h 56m 32s
 # https://github.com/sindresorhus/pretty-time-zsh
 
-not_so_pure() {
-    declare preprompt_parts="$@"
-    if [[ -n "$VIRTUAL_ENV" ]]; then
-        preprompt_parts+=('%F{yellow}v$(python --version 2>&1 | sed -e "s/Python //")%f')
-    fi
-
-    if [[ -n "$DOCKER_MACHINE_NAME" ]]; then
-        preprompt_parts+=('%F{green}@${DOCKER_MACHINE_NAME}%f')
-    fi
-
-    echo $preprompt_parts
-}
-
 prompt_pure_human_time_to_var() {
 	local human total_seconds=$1 var=$2
 	local days=$(( total_seconds / 60 / 60 / 24 ))
@@ -123,7 +110,8 @@ prompt_pure_preprompt_render() {
 	local -a preprompt_parts
 	# Set the path.
 	# preprompt_parts+=('%F{blue}%~%f')
-	preprompt_parts+=('%F{blue}» $(basename $PWD)%f')
+	preprompt_parts+=('%F{cyan}$(expr $(grep -o '/' <<<"$PWD" | grep -c .) - 1)»%f')
+	preprompt_parts+=('%F{blue}$(basename $PWD)%f')
 
 	# Add git branch and dirty status info.
 	typeset -gA prompt_pure_vcs_info
@@ -132,10 +120,16 @@ prompt_pure_preprompt_render() {
 	fi
 	# Git pull/push arrows.
 	if [[ -n $prompt_pure_git_arrows ]]; then
-		preprompt_parts+=('%F{cyan}${prompt_pure_git_arrows}%f')
+		preprompt_parts+=("%F{$git_color}"'${prompt_pure_git_arrows}%f')
 	fi
-
-    preprompt_parts=$(not_so_pure $preprompt_parts)
+    # virtualenv's python version
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        preprompt_parts+=('%F{yellow}v$(python --version 2>&1 | sed -e "s/Python //")%f')
+    fi
+    # connected docker machine
+    if [[ -n "$DOCKER_MACHINE_NAME" ]]; then
+        preprompt_parts+=('%F{green}@${DOCKER_MACHINE_NAME}%f')
+    fi
 
 	# Username and machine, if applicable.
 	[[ -n $prompt_pure_username ]] && preprompt_parts+=('$prompt_pure_username')
@@ -469,7 +463,7 @@ prompt_pure_setup() {
 	[[ $UID -eq 0 ]] && prompt_pure_username='%F{white}%n%f%F{242}@%m%f'
 
 	# if a virtualenv is activated, display it in grey
-	PROMPT='%(12V.%F{242}%12v%f .)'
+	PROMPT='%(12V.%F{cyan}%12v%f .)'
 
 	# prompt turns red if the previous command didn't exit with 0
 	PROMPT+='%(?.%F{magenta}.%F{red})${PURE_PROMPT_SYMBOL:-❯}%f '
