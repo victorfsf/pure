@@ -110,7 +110,7 @@ prompt_pure_preprompt_render() {
 	local -a preprompt_parts
 	# Set the path.
 	# preprompt_parts+=('%F{blue}%~%f')
-	preprompt_parts+=('%F{cyan}$(expr $(grep -o '/' <<<"$PWD" | grep -c .) - 1)»%f')
+	preprompt_parts+=('%F{cyan}$(expr $(grep -o '/' <<< "$PWD" | grep -c .) - 1)»%f')
 	preprompt_parts+=('%F{blue}$(basename $PWD)%f')
 
 	# Add git branch and dirty status info.
@@ -159,8 +159,7 @@ prompt_pure_preprompt_render() {
 	PROMPT="${(j..)ps1}"
 
 	# Expand the prompt for future comparision.
-	local expanded_prompt
-	expanded_prompt="${(S%%)PROMPT}"
+	local expanded_prompt="${(S%%)PROMPT}"
 
 	if [[ $1 != precmd ]] && [[ $prompt_pure_last_prompt != $expanded_prompt ]]; then
 		# Redraw the prompt.
@@ -466,7 +465,7 @@ prompt_pure_setup() {
 	PROMPT='%(12V.%F{white}%12v%f .)'
 
 	# prompt turns red if the previous command didn't exit with 0
-	PROMPT+='%(?.%F{green}.%F{red})${PURE_PROMPT_SYMBOL:➜}%f '
+	PROMPT+='%(?.%F{green}.%F{red})${PURE_PROMPT_SYMBOL:-❯}%f '
 }
 
 prompt_pure_setup "$@"
