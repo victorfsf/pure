@@ -110,8 +110,13 @@ prompt_pure_preprompt_render() {
 	local -a preprompt_parts
 	# Set the path.
 	# preprompt_parts+=('%F{blue}%~%f')
-	preprompt_parts+=('%F{cyan}$(expr $(grep -o '/' <<< "$PWD" | grep -c .) - 1)»%f')
-	preprompt_parts+=('%F{blue}$(basename $PWD)%f')
+	if [[ "$PWD" == "$HOME" ]]; then
+		preprompt_parts+=('%F{cyan}1»%f')
+		preprompt_parts+=('%F{blue}%~%f')
+	else
+		preprompt_parts+=('%F{cyan}$(expr $(grep -o '/' <<< "$PWD" | grep -c .) - 1)»%f')
+		preprompt_parts+=('%F{blue}$(basename $PWD)%f')
+	fi
 
 	# Add git branch and dirty status info.
 	typeset -gA prompt_pure_vcs_info
